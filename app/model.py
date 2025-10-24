@@ -4,8 +4,9 @@ import joblib
 import os
 
 #Folder to save model artifacts
-ARTIFACTS_DIR = "artifacts"
-MODEL_PATH = os.path.join(ARTIFACTS_DIR, "/model.pkl")
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+ARTIFACTS_DIR = os.path.join(BASE_DIR, "artifacts")
+MODEL_PATH = os.path.join(ARTIFACTS_DIR, "model.pkl")
 
 def ensure_artifacts_dir():
 
@@ -22,6 +23,7 @@ def train_model(data_path="data/train_data.csv"):
     ensure_artifacts_dir()
 
     df = pd.read_csv(data_path)
+    print("📋 Available columns:", df.columns.tolist())
     x = df[["size","bedrooms"]]
     y = df["price"]
 

@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+from contextlib import asynccontextmanager
 from app.model import predict, retrain_model, load_model
 
 app = FastAPI(title="FastAPI with ML")
@@ -10,12 +11,23 @@ class HouseData(BaseModel):
     bedrooms : int
 
 
-@app.on_event("startup")
-def startup_event():
-    
-    """Load model at startup (train if model is not available)"""
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # --- Startup phase ---
+    print("🚀 App starting... loading or training model.")
+    load_model()  # ensure model exists at startup
 
-    load_model()
+    # Yield control to the app
+    yield
+
+    # --- Shutdown phase ---
+    print("🛑 App shutting down... cleanup if needed.")
+
+# Initialize FastAPI with lifespan
+app = FastAPI(
+    title="FastAPI ML Retraining Demo with Artifacts",
+    lifespan=lifespan
+)
 
 
 @app.post("/predict")
